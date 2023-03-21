@@ -5,9 +5,15 @@ export interface ActiveConnections {
   [id: string]: WebSocket;
 }
 
+export interface Message {
+  text: string;
+  author: ObjectId;
+  id: string;
+}
+
 export interface IncomingMessage {
   type: string;
-  payload: string;
+  payload: Message;
 }
 
 export interface IUser {
@@ -16,5 +22,10 @@ export interface IUser {
   token: string;
   role: string;
   displayName: string;
+}
+
+export interface IMessage {
+  text: string;
+  author: ObjectId;
 }
 
