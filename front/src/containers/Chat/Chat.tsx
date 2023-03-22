@@ -35,13 +35,12 @@ const Chat = () => {
         if (ws.current) {
           ws.current.send(JSON.stringify({
             type: "LOGIN",
-            payload: user?.token
+            payload: user && user.token
           }));
         }
       };
 
       ws.current.onclose = () => {
-        console.log("Web Socket closed");
         setTimeout(connectToWebSocket, 5000);
       };
 
