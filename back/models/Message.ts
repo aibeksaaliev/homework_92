@@ -15,8 +15,13 @@ const MessageSchema = new Schema<IMessage>({
       validator: async (value: Types.ObjectId) => User.findById(value),
       message: "User does not exist"
     }
+  },
+  postedAt: {
+    type: Date,
+    required: true,
+    default: new Date()
   }
 });
 
-const Message = mongoose.model('Artist', MessageSchema);
+const Message = mongoose.model('Message', MessageSchema);
 export default Message;

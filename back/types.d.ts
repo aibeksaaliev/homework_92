@@ -13,19 +13,22 @@ export interface Message {
 
 export interface IncomingMessage {
   type: string;
-  payload: Message;
+  payload: string;
 }
 
 export interface IUser {
+  _id?: string;
   username: string;
   password: string;
   token: string;
   role: string;
   displayName: string;
+  online: boolean;
 }
 
 export interface IMessage {
   text: string;
   author: ObjectId;
+  postedAt: Date;
 }
 

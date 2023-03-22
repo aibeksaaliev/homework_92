@@ -1,11 +1,12 @@
 import express from "express";
 import expressWs from "express-ws";
 import cors from "cors";
-import {ActiveConnections, IncomingMessage} from "./types";
+import {ActiveConnections, IncomingMessage, IUser} from "./types";
 import {randomUUID} from "crypto";
 import usersRouter from "./routers/users";
 import mongoose from "mongoose";
 import config from "./config";
+import User from "./models/User";
 import Message from "./models/Message";
 
 const app = express();
@@ -21,34 +22,48 @@ const router = express.Router();
 
 const activeConnections: ActiveConnections = {};
 
-router.ws('/messages', async (ws) => {
+router.ws('/chat', async (ws) => {
   const id = randomUUID();
   activeConnections[id] = ws;
 
-  console.log("Client connected! ID=", id);
+  let user: IUser | null = null;
 
-  const lastMessages = await Message.find().limit(30);
 
-  ws.send(JSON.stringify({
-    type: "LAST_30_MESSAGES",
-    payload: lastMessages
-  }));
-
-  ws.on('message', (msg) => {
+  ws.on('message', async (msg) => {
     const decodedMessage = JSON.parse(msg.toString()) as IncomingMessage;
 
     switch (decodedMessage.type) {
+      case "LOGIN":
+        const authorizedUSer = await User.findOneAndUpdate({token: decodedMessage.payload}, {online: true});
+        if (!authorizedUSer) break;
+
+        user = authorizedUSer;
+
+        const lastMessages = await Message.find().limit(30);
+
+        Object.keys(activeConnections).forEach(connId => {
+          const conn = activeConnections[connId];
+
+          conn.send(JSON.stringify({
+            type: 'LAST_MESSAGES',
+            payload: lastMessages,
+          }));
+        });
+        break;
       case "SEND_MESSAGE":
-        const newMessage = {
-          payload: decodedMessage.payload
-        };
+        const message = await Message.create({
+          text: decodedMessage.payload,
+          author: user?._id
+        });
+
+        await message.save();
 
         Object.keys(activeConnections).forEach(connId => {
           const conn = activeConnections[connId];
 
           conn.send(JSON.stringify({
             type: 'NEW_MESSAGE',
-            payload: newMessage,
+            payload: [message],
           }));
         });
         break;
