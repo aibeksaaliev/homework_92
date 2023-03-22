@@ -10,9 +10,6 @@ export interface User {
   token: string;
   role: string;
   displayName: string;
-  avatar: string;
-  googleId: string;
-  facebookId: string;
 }
 
 export interface RegisterResponse {
@@ -49,5 +46,10 @@ export interface IncomingMessage {
 export interface Message {
   _id: string;
   text: string;
-  author: string;
+  author: OnlineUser;
+}
+
+export interface OnlineUser {
+  _id: string;
+  username: string;
 }

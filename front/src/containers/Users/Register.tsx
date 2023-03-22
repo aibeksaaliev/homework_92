@@ -30,7 +30,7 @@ const Register = () => {
 
     try {
       await dispatch(register(state)).unwrap();
-      navigate('/');
+      navigate('/chat');
     } catch (e) {
       // error happened
     }

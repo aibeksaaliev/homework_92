@@ -1,9 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import AppBar from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Link} from "react-router-dom";
 import AnonymousMenu from "../UI/AppToolbar/AnonymousMenu";
@@ -44,19 +42,6 @@ const Layout: React.FC<PropsWithChildren> = ({children}) => {
         <main style={{marginBottom: "auto"}}>
           {children}
         </main>
-        <Box sx={{bgcolor: 'background.paper', p: 6, marginTop: "auto"}} component="footer">
-          <Typography variant="h6" align="center" gutterBottom>
-            Footer
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            align="center"
-            color="text.secondary"
-            component="p"
-          >
-            Something here to give the footer a purpose!
-          </Typography>
-        </Box>
       </div>
     </ThemeProvider>
   );

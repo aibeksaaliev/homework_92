@@ -18,8 +18,7 @@ const MessageSchema = new Schema<IMessage>({
   },
   postedAt: {
     type: Date,
-    required: true,
-    default: new Date()
+    required: true
   }
 });
 

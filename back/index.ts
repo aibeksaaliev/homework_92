@@ -28,7 +28,6 @@ router.ws('/chat', async (ws) => {
 
   let user: IUser | null = null;
 
-
   ws.on('message', async (msg) => {
     const decodedMessage = JSON.parse(msg.toString()) as IncomingMessage;
 
@@ -39,8 +38,8 @@ router.ws('/chat', async (ws) => {
 
         user = authorizedUSer;
 
-        const lastMessages = await Message.find().limit(30);
-
+        const onlineUsers = await User.find({online: true});
+        const lastMessages = await Message.find().sort({postedAt: 1}).limit(30).populate("author", "username");
         Object.keys(activeConnections).forEach(connId => {
           const conn = activeConnections[connId];
 
@@ -48,22 +47,29 @@ router.ws('/chat', async (ws) => {
             type: 'LAST_MESSAGES',
             payload: lastMessages,
           }));
+
+          conn.send(JSON.stringify({
+            type: 'ONLINE_USERS',
+            payload: onlineUsers
+          }));
         });
         break;
       case "SEND_MESSAGE":
         const message = await Message.create({
           text: decodedMessage.payload,
-          author: user?._id
+          author: user?._id,
+          postedAt: new Date()
         });
 
         await message.save();
+        const newMessage = await Message.findById(message._id).populate("author", "username");
 
         Object.keys(activeConnections).forEach(connId => {
           const conn = activeConnections[connId];
 
           conn.send(JSON.stringify({
             type: 'NEW_MESSAGE',
-            payload: [message],
+            payload: [newMessage],
           }));
         });
         break;
@@ -72,8 +78,26 @@ router.ws('/chat', async (ws) => {
     }
   });
 
-  ws.on('close', () => {
-    console.log("Client disconnected! ID=", id);
+  ws.on('close', async () => {
+    if (user) {
+      await User.findByIdAndUpdate(user._id, {online: false});
+      const onlineUsers = await User.find({online: true});
+      const lastMessages = await Message.find().sort({ postedAt: 1 }).limit(30).populate("author", "username");
+      Object.keys(activeConnections).forEach(connId => {
+        const conn = activeConnections[connId];
+
+        conn.send(JSON.stringify({
+          type: 'LAST_MESSAGES',
+          payload: lastMessages,
+        }));
+
+        conn.send(JSON.stringify({
+          type: 'ONLINE_USERS',
+          payload: onlineUsers
+        }));
+      });
+    }
+
     delete activeConnections[id];
   })
 });
