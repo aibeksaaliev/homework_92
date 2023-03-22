@@ -13,11 +13,11 @@ addInterceptors(store);
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      {/*<PersistGate persistor={persistor}>*/}
+      <PersistGate persistor={persistor}>
         <BrowserRouter>
           <App/>
         </BrowserRouter>
-      {/*</PersistGate>*/}
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 )

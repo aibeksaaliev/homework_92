@@ -13,8 +13,7 @@ const usersPersistConfig = {
 
 const rootReducer = combineReducers({
   chat: chatReducer,
-  // users: persistReducer(usersPersistConfig, usersReducer),
-  users: usersReducer,
+  users: persistReducer(usersPersistConfig, usersReducer),
 });
 
 export const store = configureStore({
